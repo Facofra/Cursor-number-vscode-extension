@@ -49,11 +49,32 @@ export function activate(context: vscode.ExtensionContext) {
 		// si hay seleccion, indicar numero al principio de cada linea
 		if(! selection.start.isEqual(selection.end) ){
 
-			editor.edit(editBuilder => {
-				let lineNumber=1;
-				for (let i = selection.start.line; i <= selection.end.line; i++) {
-					editBuilder.insert(new vscode.Position(i, 0), `${lineNumber} `);
-					lineNumber++;
+			// Obtener todas las líneas completas que atraviesa la selección
+			const startLine = selection.start.line;
+			const endLine = selection.end.line;
+			const startPos = new vscode.Position(startLine, 0);
+			const endPos = new vscode.Position(endLine, editor.document.lineAt(endLine).text.length);
+			const fullLineSelection = new vscode.Range(startPos, endPos);
+			const selectedText = editor.document.getText(fullLineSelection);
+
+			vscode.window.showInputBox({
+				prompt: "n° de copias requeridas",
+				placeHolder: "10",
+				value: ""
+			}).then(function (value:string='1') {
+				const numeroDeCopias = parseInt(value);
+				
+				let textToInsert='';
+				for (let i = 1; i < numeroDeCopias; i++) {
+					textToInsert += `\n${selectedText}`;
+				}
+
+				// solo copiar si queremos mas de 1 copia
+				if (numeroDeCopias > 1) {
+					editor.edit(editBuilder => {
+						const insertPosition = new vscode.Position(endLine, editor.document.lineAt(endLine).text.length);
+						editBuilder.insert(insertPosition, textToInsert);
+					});
 				}
 			});
 			return;

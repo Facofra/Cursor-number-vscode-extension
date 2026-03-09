@@ -22,7 +22,7 @@
     "keybindings": [
       {
         "command": "cursornumber.cursorNumber",
-        "key": "ctrl+f1",
+        "key": "alt+`",
         "when": "editorTextFocus"
       }
     ],
